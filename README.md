@@ -6,6 +6,6 @@ I added some new capability in order to modify Avalonia DataGrid - to allow more
 I added capability to make all non-public methods (including private and protected, but not virtual or overridden) public for some types.
 Also I added capability to make some (e.g. private) methods - virtual protected in order to enable the overrides in subclasses. 
 
-Also I renamed the executable and the project to imply more generic application rather than simply turning internal methods into public. 
+Also I renamed the executable and the project to imply more generic application rather than simply turning internal classes, methods, fields and properties into public. 
 
 I might add more functionality in the future as I need it. 
