@@ -1,0 +1,87 @@
+<Project>
+
+    <PropertyGroup>
+        <_IACTG_TargetFramework Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard2.0</_IACTG_TargetFramework>
+        <_IACTG_TargetFramework Condition="'$(MSBuildRuntimeType)' != 'Core'">net462</_IACTG_TargetFramework>
+        <_IACTG_TaskAssembly>$(MSBuildThisFileDirectory)../tools/$(_IACTG_TargetFramework)/DotNetBinaryAdjuster.Tasks.dll</_IACTG_TaskAssembly>
+        <_IACTG_IntermediatePath>$(IntermediateOutputPath)/DotNetBinaryAdjuster</_IACTG_IntermediatePath>
+        <_IACTG_CodeFilePath>$(_IACTG_IntermediatePath)/IgnoresAccessChecksTo.cs</_IACTG_CodeFilePath>
+        <_IACTG_ManifestFilePath>$(_IACTG_IntermediatePath)/DotNetBinaryAdjuster.manifest</_IACTG_ManifestFilePath>
+        <_IACTG_AllMethodsExposedManifestFilePath>$(_IACTG_IntermediatePath)/AllMethodsExposed.manifest</_IACTG_AllMethodsExposedManifestFilePath>
+        <_IACTG_VirtualizeMethodNamesManifestFilePath>$(_IACTG_IntermediatePath)/AllVirtualizedMethods.manafest</_IACTG_VirtualizeMethodNamesManifestFilePath>
+    </PropertyGroup>
+
+    <UsingTask AssemblyFile="$(_IACTG_TaskAssembly)"
+               TaskName="DotNetBinaryAdjuster.Tasks.PublicizeInternals" />
+
+    <!--
+    MSBuild incremental build tracking only supports files, so we create a manifest that contains all the items we use as inputs.
+    This target has MSBuildAllProjects as input which means it will be invalidated on any project file change.
+  -->
+    <Target Name="GetNamesToPaths"
+            Inputs="$(MSBuildAllProjects)"
+            Outputs="$(_IACTG_ManifestFilePath);$(_IACTG_AllMethodsExposedManifestFilePath);$(_IACTG_VirtualizeMethodNamesManifestFilePath)"
+            Returns="@(_IACTG_InputReferencePath);@(_IACTG_OutputReferencePath)">
+        <ItemGroup>
+            <InternalsAssemblyName Include="$(InternalsAssemblyNames.Split(;))" />
+            <InternalsAssemblyExcludeTypeName Include="$(InternalsAssemblyExcludeTypeNames.Split(;))" />
+            <ExposeAllMethodsTypeName Include="$(ExposeAllMethodsTypeNames.Split(;))" />
+            <VirtualizeMethodName Include="$(VirtualizeMethodNames.Split(;))" />
+        </ItemGroup>
+        <ItemGroup>
+            <_IACTG_ReferencePathJoin Include="@(ReferencePath)"
+                                      InternalsAssemblyName="%(InternalsAssemblyName.Identity)" />
+            <_IACTG_InputReferencePath Include="@(_IACTG_ReferencePathJoin)"
+                                       Condition=" '%(Filename)' == '%(InternalsAssemblyName)' " />
+            <_IACTG_ReferencePathJoin Remove="@(_IACTG_ReferencePathJoin)" />
+            <_IACTG_OutputReferencePath Include="@(_IACTG_InputReferencePath->'$(_IACTG_IntermediatePath)/%(Filename)%(Extension)')"
+                                        OriginalItemSpec="%(Identity)" />
+        </ItemGroup>
+        <ItemGroup>
+            <_IACTG_Manifest Include="@(InternalsAssemblyExcludeTypeName)" />
+            <_IACTG_AllExposedManifest Include="@(ExposeAllMethodsTypeName)" />
+            <_IACTG_VirtualizedMethodsManifest Include="@(VirtualizeMethodName)" />
+        </ItemGroup>
+        <WriteLinesToFile File="$(_IACTG_ManifestFilePath)"
+                          Lines="@(_IACTG_Manifest)"
+                          WriteOnlyWhenDifferent="true"
+                          Overwrite="true" />
+        <WriteLinesToFile File="$(_IACTG_AllMethodsExposedManifestFilePath)"
+                          Lines="@(_IACTG_AllExposedManifest)"
+                          WriteOnlyWhenDifferent="true"
+                          Overwrite="true" />
+        <WriteLinesToFile File="$(_IACTG_VirtualizeMethodNamesManifestFilePath)"
+                          Lines="@(_IACTG_VirtualizedMethodsManifest)"
+                          WriteOnlyWhenDifferent="true"
+                          Overwrite="true" />
+    </Target>
+
+    <Target Name="DotNetBinaryAdjuster"
+            DependsOnTargets="GetNamesToPaths"
+            AfterTargets="AfterResolveReferences"
+            Inputs="@(_IACTG_InputReferencePath);$(_IACTG_ManifestFilePath);$(_IACTG_AllMethodsExposedManifestFilePath);$(_IACTG_VirtualizeMethodNamesManifestFilePath)"
+            Outputs="@(_IACTG_OutputReferencePath);$(_IACTG_CodeFilePath)"
+            Returns="@(ReferencePath);@(Compile)">
+        <PublicizeInternals SourceReferences="@(ReferencePath)"
+                            AssemblyNames="@(InternalsAssemblyName)"
+                            ExcludeTypeNames="@(InternalsAssemblyExcludeTypeName)"
+                            ExposeAllMethodsTypeNames="@(ExposeAllMethodsTypeName)"
+                            VirtualizeMethodNames="@(VirtualizeMethodName)"
+                            IntermediateOutputPath="$(_IACTG_IntermediatePath)"
+                            GeneratedCodeFilePath="$(_IACTG_CodeFilePath)" />
+        <ItemGroup>
+            <ReferencePath Include="@(_IACTG_OutputReferencePath)" />
+            <ReferencePath Remove="@(_IACTG_OutputReferencePath->'%(OriginalItemSpec)')" />
+            <Compile Include="$(_IACTG_CodeFilePath)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="DotNetBinaryAdjusterClean"
+            AfterTargets="Clean">
+        <ItemGroup>
+            <_IACTG_Directory Include="$(_IACTG_IntermediatePath)" />
+        </ItemGroup>
+        <RemoveDir Directories="@(_IACTG_Directory)" />
+    </Target>
+
+</Project>

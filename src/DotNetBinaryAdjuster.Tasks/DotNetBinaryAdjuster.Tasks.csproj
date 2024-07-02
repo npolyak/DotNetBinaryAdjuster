@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+		<PackageId>DotNetBinaryAdjuster</PackageId>
+		<Version>0.1.0</Version>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<Authors>Eli Arbel, Nick Polyak</Authors>
+		<RepositoryUrl>https://github.com/npolyak/DotNetBinaryAdjuster</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Description>Modifies the binaries to increase visibility of types and methods. Also to make some methods virtual to enable their override</Description>
+		<PackageTags>IgnoresAccessChecksToGenerator IgnoresAccessChecksTo IgnoresAccessChecksToAttribute internals</PackageTags>
+		<BuildOutputTargetFolder>tools/$(TargetFramework)</BuildOutputTargetFolder>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludePackageDependencies</TargetsForTfmSpecificBuildOutput>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="build\*" PackagePath="build" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Mono.Cecil" Version="0.11.5" />
+		<PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.8.3" />
+	</ItemGroup>
+
+	<Target Name="IncludePackageDependencies">
+		<ItemGroup>
+			<BuildOutputInPackage Include="@(ReferencePath)" Condition=" '%(Filename)' == 'Mono.Cecil' " />
+		</ItemGroup>
+	</Target>
+
+</Project>

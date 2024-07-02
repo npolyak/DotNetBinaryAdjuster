@@ -1,0 +1,18 @@
+<Project>
+
+	<ItemDefinitionGroup>
+		<InternalsAssemblyName>
+			<Visible>false</Visible>
+		</InternalsAssemblyName>
+		<InternalsAssemblyExcludeTypeName>
+			<Visible>false</Visible>
+		</InternalsAssemblyExcludeTypeName>
+		<ExposeAllMethodsTypeName>
+			<Visible>false</Visible>
+		</ExposeAllMethodsTypeName>
+        <VirtualizeMethodName>
+            <Visisble>false</Visisble>
+        </VirtualizeMethodName>
+	</ItemDefinitionGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <Axxx>true</Axxx>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DotNetBinaryAdjuster"
+                          Version="0.1.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TestedBinaryProj"
+                          Version="1.0.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsAssemblyName Include="TestedBinaryProj" />
+        <ExposeAllMethodsTypeName Include="TestedBinaryProj.InternalClass" />
+        <VirtualizeMethodName Include="TestedBinaryProj.InternalClass:MethodToOverride" />
+    </ItemGroup>
+</Project>
