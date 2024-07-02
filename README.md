@@ -1,5 +1,5 @@
 # NP.NetBinaryAdjuster
-this project is an offshoot of [IgnoresAccessChecksToGenerator](https://github.com/aelij/IgnoresAccessChecksToGenerator) by Eli Arbel and otherse. Most of the code comes from the them. 
+this project is an offshoot of [IgnoresAccessChecksToGenerator](https://github.com/aelij/IgnoresAccessChecksToGenerator) by Eli Arbel and others. Most of the code comes from the them. 
 
 I needed this capability in order to modify Avalonia DataGrid - to allow more flexibility in building the group header rows and some other functionality without modifying the whole DataGrid code.
 
